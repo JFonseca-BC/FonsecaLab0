@@ -2,7 +2,7 @@ const startBtn = document.getElementById("start-btn");
 const gameBoard = document.getElementById("game-board");
 const promptTxt = document.getElementById("prompt-txt");
 const errorTxt = document.getElementById("error-txt");
-const errorBox = document.getElementById("error-txt");
+const errorBox = document.getElementById("error-box");
 
 promptTxt.textContent = userText.uiText[0];
 startBtn.textContent = userText.uiText[1];
