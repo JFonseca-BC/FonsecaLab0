@@ -1,11 +1,25 @@
-const gamePrompt = "How many buttons to create?";
 const gameWin = "Excellent memory!";
 const gameLose = "Wrong order!";
-const goButton = "Go!";
 
-const strings = {
-  gamePrompt,
+const gameText = [
   gameWin,
   gameLose,
-  goButton,
-};
+];
+
+const NaNError = "Please enter a valid number.";
+const rangeError = "Number must be between 3 and 7.";
+
+const errorHandling = [
+    NaNError,
+    rangeError,
+];
+
+const gamePrompt = "How many buttons to create?";
+const goButton = "Go!";
+
+const uiText = [
+    gamePrompt, 
+    goButton,
+];
+
+export { gameText, errorHandling, uiText };
