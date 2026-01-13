@@ -12,3 +12,7 @@ body {
 #prompt {
     text-align: center;
 }
+
+#error-txt {
+    color: white;
+}

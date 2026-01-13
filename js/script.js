@@ -1,8 +1,13 @@
 const startBtn = document.getElementById("start-btn");
 const gameBoard = document.getElementById("game-board");
 const promptTxt = document.getElementById("prompt-txt");
+const errorTxt = document.getElementById("error-txt");
+const errorBox = document.getElementById("error-txt");
 
 promptTxt.textContent = userText.uiText[0];
+startBtn.textContent = userText.uiText[1];
+
+// ------------- Button creation and movement -------------- //
 
 /* Note: this code snippet is gvingn you some tips to start
 you cannot simply copy this code.
@@ -51,9 +56,12 @@ gameForm.addEventListener("submit", function (event) {
 
     // I might have to replace these with a div above the form with text from user.js?
     if (isNaN(numButtons)) {
-        alert("Please enter a valid number.");
+        errorTxt.textContent = userText.errorHandling[0];
     } else if (numButtons < 3 || numButtons > 7) {
-        alert("Number must be between 3 and 7.");
+        errorTxt.textContent = userText.errorHandling[1];
+    } else {
+        errorTxt.textContent = "";
+        errorBox.style.backgroundColor = "none";
     }
 
 })
