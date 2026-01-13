@@ -22,7 +22,7 @@ const uiText = [
     goButton,
 ];
 
-window.usertext = {
+window.userText = {
     gameText,
     errorHandling,
     uiText,
