@@ -19,9 +19,10 @@ body {
     margin-top: 15px;
     text-align: center;
     width: auto;
+    font-size: 12pt;
 }
 
 #prompt {
     text-align: center;
-    font-weight: 15pt;
+    font-size: 15pt;
 }

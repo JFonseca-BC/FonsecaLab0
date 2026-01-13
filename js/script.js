@@ -7,43 +7,88 @@ const errorBox = document.getElementById("error-box");
 promptTxt.textContent = userText.uiText[0];
 startBtn.textContent = userText.uiText[1];
 
+
+
 // ------------- Button creation and movement -------------- //
-
-/* Note: this code snippet is gvingn you some tips to start
-you cannot simply copy this code.
-Also your code has to be more modular and create more functions
-*/
-let arrayButtons = [];
 function Button(color, width, height, top, left, order) {
-    this.order = order;
-    this.btn = document.createElement("button");
-    this.btn.style.backgroundColor = color;
-    this.btn.style.width = width;
-    this.btn.style.height = height;
-    this.btn.style.position = "absolute";
+        this.order = order;
+        this.btn = document.createElement("button");
+        this.btn.style.backgroundColor = color;
+        this.btn.style.width = width;
+        this.btn.style.height = height;
+        this.btn.style.position = "absolute";
 
-    document.body.appendChild(this.btn);
-    // A method to set location
-    this.setLocation = function (top, left) {
-        this.btn.style.top = top;
-        this.btn.style.left = left;
-    };
-    /* we call this method to set original
-    top, left during creation of object */
-    this.setLocation(top, left);
-
+        document.body.appendChild(this.btn);
+        // A method to set location
+        this.setLocation = function (top, left) {
+            this.btn.style.top = top;
+            this.btn.style.left = left;
+        };
+        
+        this.setLocation(top, left);
 }
 
-arrayButtons.push(new Button("Red", "100px", "100px", "0px", "0px", 0));
-arrayButtons.push(new Button("Blue", "200px", "100px", "200px", "200px", 0));
-// In execution, these need to be randomized, not hard coded
+function moveRandom(btnArray) {
+    setInterval(function () {
+        for (let i = 0; i < btnArray.length; i++) {
+            arrayButtons[i].setLocation(
+                Math.floor(Math.random() * 100) + "px",
+                Math.floor(Math.random() * 100) + "px");
+        }
+    }, i * 1000);
+}
 
-// this has to be in a separate function, e.g. moveRandom ... or something
-setInterval(function () {
-    arrayButtons[0].setLocation(
-        Math.floor(Math.random() * 100) + "px",
-        Math.floor(Math.random() * 100) + "px");
-}, 500);
+const colors = [
+    "CornflowerBlue", 
+    "Crimson", 
+    "Coral", 
+    "DarkSalmon", 
+    "DarkSeaGreen", 
+    "MediumPurple", 
+    "MistyRose",
+    "PaleGreen",
+    "PaleVioletRed",
+    "Yellow",
+    "OliveDrab",
+    "Lavender"
+];
+
+function getRandomColor() {
+    const index = Math.floor(Math.random() * colors.length);
+    return colors[index];
+}
+
+function getColorList(num) {
+    const randomColors = [];
+    let randColor = "";
+    for (let i = 0; i < num; i++) {
+        randColor = getRandomColor();
+        while (randomColors.includes(randColor)) {
+            randColor = getRandomColor();
+        }
+        randomColors.push(randColor);
+    }
+    return randomColors;
+}
+
+function startGame(num) {
+    const colorList = getColorList(num);
+    let currentOrder = 1;
+
+    let arrayButtons = [];
+    for (let i = 0; i < num; i++) {
+        arrayButtons.push(new Button(
+            colorList[i], 
+            "100px", 
+            "100px", 
+            Math.floor(Math.random() * 400) + "px", 
+            Math.floor(Math.random() * 400) + "px", 
+            i
+        ));
+    }
+
+    moveRandom(arrayButtons);
+}
 
 // ------------- Form handling -------------- //
 const gameForm = document.getElementById("game-form");
