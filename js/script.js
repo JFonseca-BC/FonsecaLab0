@@ -49,6 +49,22 @@ setInterval(function () {
 const gameForm = document.getElementById("game-form");
 let numButtons = 0;
 
+function showError(message) {
+    errorTxt.textContent = message;
+    errorBox.style.backgroundColor = "lightpink";
+    errorBox.style.border = "2px solid red";
+    errorBox.style.padding = "5px";
+    errorBox.style.borderRadius = "10px";
+}
+
+function clearError() {
+    errorTxt.textContent = "";
+    errorBox.style.backgroundColor = "none";
+    errorBox.style.border = "none";
+    errorBox.style.padding = "0px";
+    errorBox.style.borderRadius = "0px";
+}
+
 gameForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
@@ -56,12 +72,14 @@ gameForm.addEventListener("submit", function (event) {
 
     // I might have to replace these with a div above the form with text from user.js?
     if (isNaN(numButtons)) {
-        errorTxt.textContent = userText.errorHandling[0];
+        showError(userText.errorHandling[0]);
     } else if (numButtons < 3 || numButtons > 7) {
-        errorTxt.textContent = userText.errorHandling[1];
+        showError(userText.errorHandling[1]);
     } else {
-        errorTxt.textContent = "";
-        errorBox.style.backgroundColor = "none";
+        gameForm.reset();
+        clearError();
+        // call the game handler
+        // something like startGame(numButtons);
     }
 
 })
