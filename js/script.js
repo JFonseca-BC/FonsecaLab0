@@ -1,125 +1,157 @@
-const startBtn = document.getElementById("start-btn");
-const gameBoard = document.getElementById("game-board");
-const promptTxt = document.getElementById("prompt-txt");
-const errorTxt = document.getElementById("error-txt");
-const errorBox = document.getElementById("error-box");
-const gameForm = document.getElementById("game-form");
+// Class 1: UIHandler
+// Responsible for form inputs, error messages, and initial static text
+class UIHandler {
+    constructor() {
+        this.startBtn = document.getElementById("start-btn");
+        this.promptTxt = document.getElementById("prompt-txt");
+        this.errorTxt = document.getElementById("error-txt");
+        this.errorBox = document.getElementById("error-box");
+        this.gameForm = document.getElementById("game-form");
+        this.btnCountInput = document.getElementById("btn-count");
 
-promptTxt.textContent = userText.uiText[0];
-startBtn.value = userText.uiText[1];
+        // Initialize UI text from user.js
+        this.promptTxt.textContent = userText.uiText[0];
+        this.startBtn.value = userText.uiText[1];
+    }
 
-let buttons = [];
-let expectedOrder = 0;
-let gameRunning = false;
-let timerInterval = null;
-let waitTimeout = null;
-let currentZIndex = 10;
+    showError(message) {
+        this.errorTxt.textContent = message;
+        this.errorBox.style.backgroundColor = "lightpink";
+        this.errorBox.style.border = "2px solid red";
+        this.errorBox.style.padding = "5px";
+        this.errorBox.style.borderRadius = "10px";
+    }
 
-// ------------- Button class -------------- //
+    clearError() {
+        this.errorTxt.textContent = "";
+        this.errorBox.style.backgroundColor = "";
+        this.errorBox.style.border = "";
+        this.errorBox.style.padding = "";
+        this.errorBox.style.borderRadius = "";
+    }
 
-function Button(color, order) {
-    this.order = order;
-    this.displayOrder = order + 1;
-    const self = this;
+    getInputValue() {
+        return parseInt(this.btnCountInput.value);
+    }
+}
 
-    this.btn = document.createElement("button");
-    this.btn.style.backgroundColor = color;
-    this.btn.style.width = "10em";
-    this.btn.style.height = "5em";
-    this.btn.style.position = "static";
-    this.btn.style.margin = "10px";
-    this.btn.style.border = "2px solid black";
+// Class 2: GameButton
+// Represents a single button component on the screen
+class GameButton {
+    constructor(color, order, gameInstance) {
+        this.order = order;
+        this.displayOrder = order + 1;
+        this.game = gameInstance; // Reference to game engine to report clicks
 
-    this.btn.style.fontSize = "2em";
-    this.btn.textAlign = "center";
+        this.element = document.createElement("button");
+        this.element.style.backgroundColor = color;
+        this.element.style.width = "10em";
+        this.element.style.height = "5em";
+        this.element.style.position = "static";
+        this.element.style.margin = "10px";
+        this.element.style.border = "2px solid black";
+        this.element.style.fontSize = "2em";
+        this.element.innerText = this.displayOrder;
 
-    this.btn.innerText = this.displayOrder;
+        // Bind click event
+        this.element.onclick = () => this.handleClick();
+    }
 
-    gameBoard.appendChild(this.btn);
+    addToBoard(boardElement) {
+        boardElement.appendChild(this.element);
+    }
 
-    this.setLocation = function (top, left) {
-        this.btn.style.position = "absolute";
-        this.btn.style.top = top + "px";
-        this.btn.style.left = left + "px";
-        this.btn.style.margin = "0";
-    };
+    setLocation(top, left) {
+        this.element.style.position = "absolute";
+        this.element.style.top = top + "px";
+        this.element.style.left = left + "px";
+        this.element.style.margin = "0";
+    }
 
-    this.reveal = function () {
-        this.btn.innerText = this.displayOrder;
-    };
+    reveal() {
+        this.element.innerText = this.displayOrder;
+    }
 
-    this.handleClick = function () {
-        if (!gameRunning) return;
+    hideLabel() {
+        this.element.innerText = "";
+    }
 
-        if (this.displayOrder === expectedOrder) {
-            this.reveal();
-            
-            currentZIndex++;
-            this.btn.style.zIndex = currentZIndex;
-            
-            expectedOrder++;
+    setZIndex(index) {
+        this.element.style.zIndex = index;
+    }
 
-            if (expectedOrder > buttons.length) {
-                endGame(true);
+    handleClick() {
+        // Delegate logic back to the game engine
+        this.game.handleButtonClick(this);
+    }
+}
+
+// Class 3: MemoryGame
+// The "Logical Module" that controls game state, shuffling, and rules
+class MemoryGame {
+    constructor(uiHandler) {
+        this.ui = uiHandler;
+        this.board = document.getElementById("game-board");
+        this.buttons = [];
+        this.expectedOrder = 1;
+        this.isRunning = false;
+        this.timerInterval = null;
+        this.waitTimeout = null;
+        this.currentZIndex = 10;
+        
+        this.colors = [
+            "CornflowerBlue", "Crimson", "Coral", "DarkSalmon", 
+            "DarkSeaGreen", "MediumPurple", "MistyRose", "PaleGreen",
+            "PaleVioletRed", "Yellow", "OliveDrab", "Lavender"
+        ];
+    }
+
+    start(num) {
+        this.reset();
+        const colorList = this.getColorList(num);
+
+        for (let i = 0; i < num; i++) {
+            const btn = new GameButton(colorList[i], i, this);
+            this.buttons.push(btn);
+            btn.addToBoard(this.board);
+        }
+
+        this.waitTimeout = setTimeout(() => {
+            this.startShuffle();
+        }, num * 1000);
+    }
+
+    reset() {
+        this.board.innerHTML = "";
+        this.buttons = [];
+        this.expectedOrder = 1;
+        this.currentZIndex = 10;
+        this.isRunning = false;
+        this.ui.clearError();
+
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        if (this.waitTimeout) clearTimeout(this.waitTimeout);
+    }
+
+    startShuffle() {
+        let count = 0;
+        const maxShuffles = 3;
+
+        this.timerInterval = setInterval(() => {
+            this.shufflePositions();
+            count++;
+
+            if (count >= maxShuffles) {
+                clearInterval(this.timerInterval);
+                this.enablePlay();
             }
-        } else {
-            endGame(false);
-        }
-    };
-
-    this.btn.onclick = function () {
-        self.handleClick();
-    };
-}
-
-const colors = [
-    "CornflowerBlue", "Crimson", "Coral", "DarkSalmon", 
-    "DarkSeaGreen", "MediumPurple", "MistyRose", "PaleGreen",
-    "PaleVioletRed", "Yellow", "OliveDrab", "Lavender"
-];
-
-function getRandomColor() {
-    const index = Math.floor(Math.random() * colors.length);
-    return colors[index];
-}
-
-function getColorList(num) {
-    const randomColors = [];
-    while (randomColors.length < num) {
-        let randColor = getRandomColor();
-        if (!randomColors.includes(randColor)) {
-            randomColors.push(randColor);
-        }
-    }
-    return randomColors;
-}
-
-
-// ------------- Game logic -------------- //
-
-function startGame(num) {
-    resetGame();
-
-    const colorList = getColorList(num);
-
-    for (let i = 0; i < num; i++) {
-        buttons.push(new Button(colorList[i], i));
+        }, 2000);
     }
 
-    waitTimeout = setTimeout(function () {
-        startShuffle();
-    }, num * 1000);
-}
-
-function startShuffle() {
-    let count = 0;
-    const maxShuffles = 3;
-
-    const shuffle = function() {
-        // get the playable area dimensions and set max
-        const boardRect = gameBoard.getBoundingClientRect();
-        buttons.forEach(function(btn) {
-            const btnElem = btn.btn;
+    shufflePositions() {
+        const boardRect = this.board.getBoundingClientRect();
+        this.buttons.forEach(btn => {
+            const btnElem = btn.element;
             const maxX = boardRect.width - btnElem.offsetWidth;
             const maxY = boardRect.height - btnElem.offsetHeight;
 
@@ -128,89 +160,72 @@ function startShuffle() {
 
             btn.setLocation(randY, randX);
         });
-    };
-
-    timerInterval = setInterval(function() {
-        shuffle();
-        count++;
-
-        if (count >= maxShuffles) {
-            clearInterval(timerInterval);
-            enablePlay();
-        }
-    }, 2000); // every 2 seconds
-}
-
-function enablePlay() {
-    buttons.forEach(function(btn) {
-        btn.btn.innerText = "";
-    });
-    expectedOrder = 1;
-    gameRunning = true;
-}
-
-function endGame(isWin) {
-    gameRunning = false;
-
-    buttons.forEach(function(btn) {
-        btn.reveal();
-    });
-
-    const message = document.createElement("div");
-    message.className = "game-message";
-    message.textContent = isWin ? userText.gameText[0] : userText.gameText[1];
-
-    if (isWin) {
-        message.style.color = "green";
-    } else {
-        message.style.color = "red";
     }
 
-    gameBoard.appendChild(message);
+    enablePlay() {
+        this.buttons.forEach(btn => btn.hideLabel());
+        this.expectedOrder = 1;
+        this.isRunning = true;
+    }
+
+    handleButtonClick(btnClicked) {
+        if (!this.isRunning) return;
+
+        if (btnClicked.displayOrder === this.expectedOrder) {
+            btnClicked.reveal();
+            this.currentZIndex++;
+            btnClicked.setZIndex(this.currentZIndex);
+            this.expectedOrder++;
+
+            if (this.expectedOrder > this.buttons.length) {
+                this.endGame(true);
+            }
+        } else {
+            this.endGame(false);
+        }
+    }
+
+    endGame(isWin) {
+        this.isRunning = false;
+        this.buttons.forEach(btn => btn.reveal());
+
+        const message = document.createElement("div");
+        message.className = "game-message";
+        message.textContent = isWin ? userText.gameText[0] : userText.gameText[1];
+        message.style.color = isWin ? "green" : "red";
+
+        this.board.appendChild(message);
+    }
+
+    getColorList(num) {
+        const randomColors = [];
+        while (randomColors.length < num) {
+            let index = Math.floor(Math.random() * this.colors.length);
+            let randColor = this.colors[index];
+            if (!randomColors.includes(randColor)) {
+                randomColors.push(randColor);
+            }
+        }
+        return randomColors;
+    }
 }
 
-function resetGame() {
-    gameBoard.innerHTML = ""; // remove buttons from html
-    buttons = []; // remove buttons from memory
-    expectedOrder = 1;
-    currentZIndex = 10;
-    gameRunning = false;
-    clearError();
+// --- Main Initialization ---
 
-    if (timerInterval) clearInterval(timerInterval);
-    if (waitTimeout) clearTimeout(waitTimeout);
-}
+const ui = new UIHandler();
+const game = new MemoryGame(ui);
 
-// ------------- Form handling -------------- //
-let numButtons = 0;
-
-function showError(message) {
-    errorTxt.textContent = message;
-    errorBox.style.backgroundColor = "lightpink";
-    errorBox.style.border = "2px solid red";
-    errorBox.style.padding = "5px";
-    errorBox.style.borderRadius = "10px";
-}
-
-function clearError() {
-    errorTxt.textContent = "";
-    errorBox.style.backgroundColor = "";
-    errorBox.style.border = "";
-    errorBox.style.padding = "";
-    errorBox.style.borderRadius = "";
-}
-
-gameForm.addEventListener("submit", function (event) {
+ui.gameForm.addEventListener("submit", function (event) {
     event.preventDefault();
-    let numButtons = parseInt(document.getElementById("btn-count").value);
+    let numButtons = ui.getInputValue();
 
     if (isNaN(numButtons)) {
-        showError(userText.errorHandling[0]);
+        ui.showError(userText.errorHandling[0]);
     } else if (numButtons < 3 || numButtons > 7) {
-        showError(userText.errorHandling[1]);
+        ui.showError(userText.errorHandling[1]);
     } else {
-        gameForm.reset();
-        clearError();
-        startGame(numButtons);
+        ui.gameForm.reset();
+        ui.clearError();
+        game.start(numButtons);
     }
 });
