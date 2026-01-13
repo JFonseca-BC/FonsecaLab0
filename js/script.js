@@ -59,10 +59,10 @@ function showError(message) {
 
 function clearError() {
     errorTxt.textContent = "";
-    errorBox.style.backgroundColor = "none";
-    errorBox.style.border = "none";
-    errorBox.style.padding = "0px";
-    errorBox.style.borderRadius = "0px";
+    errorBox.style.backgroundColor = "";
+    errorBox.style.border = "";
+    errorBox.style.padding = "";
+    errorBox.style.borderRadius = "";
 }
 
 gameForm.addEventListener("submit", function (event) {
