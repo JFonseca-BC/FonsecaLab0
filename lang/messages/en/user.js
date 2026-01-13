@@ -22,4 +22,8 @@ const uiText = [
     goButton,
 ];
 
-export { gameText, errorHandling, uiText };
+window.usertext = {
+    gameText,
+    errorHandling,
+    uiText,
+};

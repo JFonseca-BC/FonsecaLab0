@@ -1,11 +1,10 @@
-import '../lang/messages/en/user.js';
-import { uiText } from '../lang/messages/en/user.js';
+const userText = require("../lang/message/en/user");
 
 const startBtn = document.getElementById("start-btn");
 const gameBoard = document.getElementById("game-board");
 const promptTxt = document.getElementById("prompt-txt");
 
-promptTxt.textContent = uiText[0];
+promptTxt.textContent = userText.uiText[0];
 
 /* Note: this code snippet is gvingn you some tips to start
 you cannot simply copy this code.
