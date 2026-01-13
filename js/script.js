@@ -1,5 +1,3 @@
-const userText = require("../lang/message/en/user");
-
 const startBtn = document.getElementById("start-btn");
 const gameBoard = document.getElementById("game-board");
 const promptTxt = document.getElementById("prompt-txt");
