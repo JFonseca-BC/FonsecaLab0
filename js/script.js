@@ -13,7 +13,7 @@ let expectedOrder = 0;
 let gameRunning = false;
 let timerInterval = null;
 let waitTimeout = null;
-
+let currentZIndex = 10;
 
 // ------------- Button class -------------- //
 
@@ -53,6 +53,10 @@ function Button(color, order) {
 
         if (this.displayOrder === expectedOrder) {
             this.reveal();
+            
+            currentZIndex++;
+            this.btn.style.zIndex = currentZIndex;
+            
             expectedOrder++;
 
             if (expectedOrder > buttons.length) {
@@ -169,6 +173,7 @@ function resetGame() {
     gameBoard.innerHTML = ""; // remove buttons from html
     buttons = []; // remove buttons from memory
     expectedOrder = 1;
+    currentZIndex = 10;
     gameRunning = false;
     clearError();
 
@@ -204,6 +209,7 @@ gameForm.addEventListener("submit", function (event) {
     } else if (numButtons < 3 || numButtons > 7) {
         showError(userText.errorHandling[1]);
     } else {
+        gameForm.reset();
         clearError();
         startGame(numButtons);
     }
